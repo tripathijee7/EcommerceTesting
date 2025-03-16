@@ -1,0 +1,63 @@
+package Prodigy;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class ECommerceCheckoutTest {
+    public static void main(String[] args) {
+        // Setup WebDriver
+        WebDriverManager.chromedriver().setup();
+        WebDriver driver = new ChromeDriver();
+        
+        try {
+            // Step 1: Open the e-commerce website
+            driver.get("http://www.automationpractice.pl/index.php");
+            driver.manage().window().maximize();
+
+            // Step 2: Add item to the cart
+            WebElement firstItem = driver.findElement(By.cssSelector(".product_img_link"));
+            firstItem.click();
+            WebElement addToCart = driver.findElement(By.id("add_to_cart"));
+            addToCart.click();
+            Thread.sleep(2000);
+
+            // Step 3: Proceed to checkout
+            WebElement proceedToCheckout = driver.findElement(By.cssSelector("a[title='Proceed to checkout']"));
+            proceedToCheckout.click();
+
+            // Step 4: Checkout process
+            WebElement checkoutButton = driver.findElement(By.cssSelector("a.standard-checkout"));
+            checkoutButton.click();
+
+            // Step 5: Fill login details
+            driver.findElement(By.id("email")).sendKeys("testuser@example.com");
+            driver.findElement(By.id("passwd")).sendKeys("Test@123");
+            driver.findElement(By.id("SubmitLogin")).click();
+
+            // Step 6: Confirm address and shipping
+            driver.findElement(By.name("processAddress")).click();
+            driver.findElement(By.id("cgv")).click();  // Agree to terms
+            driver.findElement(By.name("processCarrier")).click();
+
+            // Step 7: Select Payment Method & Confirm Order
+            driver.findElement(By.className("bankwire")).click();
+            driver.findElement(By.cssSelector("#cart_navigation button")).click();
+
+            // Step 8: Verify success message
+            WebElement confirmation = driver.findElement(By.cssSelector(".cheque-indent strong"));
+            if (confirmation.getText().contains("Your order on My Store is complete.")) {
+                System.out.println("Test Passed: Checkout completed successfully!");
+            } else {
+                System.out.println("Test Failed: Checkout verification failed.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close the browser
+            driver.quit();
+        }
+    }
+}
